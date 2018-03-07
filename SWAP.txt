@@ -1,0 +1,14 @@
+#include<stdio.h>
+#include<stdlib.h>
+
+#define SWAP(n) \
+	((n&(0x55555555))<<1) | ((n&(0xaaaaaaaa))<<1)
+
+int main()
+{
+	int num = 0;
+	scanf("%d", &num);
+	printf("交换后得到:%d\n", SWAP(num));
+	system("pause");
+	return 0;
+}
