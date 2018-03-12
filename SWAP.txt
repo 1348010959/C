@@ -8,7 +8,7 @@ int main()
 {
 	int num = 0;
 	scanf("%d", &num);
-	printf("交换后得到:%d\n", SWAP(num));
+	printf("%d\n", SWAP(num));
 	system("pause");
 	return 0;
 }
