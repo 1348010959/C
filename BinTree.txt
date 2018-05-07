@@ -1,0 +1,558 @@
+//头文件
+
+#pragma once
+#include<string.h>
+#include<stdio.h>
+#include<malloc.h>
+#include<assert.h>
+
+typedef char BTDataType;
+
+typedef struct BinTreeNode
+{
+    struct BinTreeNode* _pLeft;
+    struct BinTreeNode* _pRight;
+    BTDataType _data;
+}BTNode, *PBTNode;
+
+
+PBTNode BuyBinTreeNode(BTDataType data);    //申请结点
+
+//创建二叉树
+void _CreateBinTree(PBTNode* pRoot, const BTDataType* array, int size, int* index, BTDataType invalid);
+void CreateBinTree(PBTNode*pRoot, const BTDataType* array, int size, BTDataType invalid);
+
+// 拷贝二叉树
+PBTNode CopyBinTree(PBTNode pRoot);
+
+// 前序遍历递归
+void PreOrder(PBTNode pRoot);
+// 前序遍历非递归
+void PreOrderNor(PBTNode pRoot);
+
+// 中序遍历递归
+void InOrder(PBTNode pRoot);
+
+// 后续遍历递归
+void PostOrder(PBTNode pRoot);
+
+// 层序遍历
+void LevelOrder(PBTNode pRoot);
+
+// 二叉树的镜像递归
+void MirrorBinTree(PBTNode pRoot);
+
+// 二叉树的镜像非递归
+void MirrorBinTreeNor(PBTNode pRoot);
+
+// 求二叉树中结点的个数
+int BinTreeSize(PBTNode pRoot);
+
+// 获取二叉树中叶子结点的个数
+int GetLeafCount(PBTNode pRoot);
+
+// 求二叉树中K层结点的个数
+int GetKLevelNode(PBTNode pRoot, int K);
+
+// 求二叉树的高度
+int Height(PBTNode pRoot);
+
+
+
+////////////////////////////////////////////////////////////////////////////
+#include"BinTree.h"
+#include"Queue.h"
+#include"Stack.h"
+
+//申请结点
+PBTNode BuyBinTreeNode(BTDataType data)
+{
+    PBTNode NewBTNode = (PBTNode)malloc(sizeof(BTNode));
+    if (NULL == NewBTNode)
+    {
+        assert(NewBTNode);
+        return NULL;
+    }
+    NewBTNode->_pLeft = NULL;
+    NewBTNode->_pRight = NULL;
+    NewBTNode->_data = data;
+    return NewBTNode;
+}
+
+//创建二叉树
+void _CreateBinTree(PBTNode* pRoot, const BTDataType* array, int size, int* index, BTDataType invalid)
+{
+    while (*index < size)
+    {
+        if (*(array + *index) != invalid)
+        {
+            {
+                *pRoot = BuyBinTreeNode(*(array + (*index)++));
+                _CreateBinTree(&(*pRoot)->_pLeft, array, size, index, invalid);
+                (*index)++;
+                _CreateBinTree(&(*pRoot)->_pRight, array, size, index, invalid);
+            }
+        }
+        if (*(array + *index) == invalid)
+            return;
+    }
+}
+
+
+void CreateBinTree(PBTNode*pRoot, const BTDataType* array, int size, BTDataType invalid)
+{
+    assert(pRoot);
+
+    int index = 0;
+    _CreateBinTree(pRoot, array,size,&index, invalid);
+}
+
+// 前序遍历递归
+void PreOrder(PBTNode pRoot)
+{
+    if (NULL == pRoot)
+        return;
+    if (pRoot)
+    {
+        printf("%c ", pRoot->_data);
+        PreOrder(pRoot->_pLeft);
+        PreOrder(pRoot->_pRight);
+    }
+}
+
+// 前序遍历非递归
+void PreOrderNor(PBTNode pRoot)
+{
+    Stack s;
+    PBTNode pCur = NULL;
+    if (NULL == pRoot)
+        return;
+    StackInit(&s);
+    StackPush(&s, pRoot);
+    while (!StackEmpty(&s))
+    {
+        pCur = StackTop(&s);
+        StackPop(&s);
+
+        printf("%c ", pCur->_data);
+        if (pCur->_pRight)
+            StackPush(&s, pCur->_pRight);
+        if (pCur->_pLeft)
+            StackPush(&s, pCur->_pLeft);
+    }
+}
+
+// 中序遍历递归
+void InOrder(PBTNode pRoot)
+{
+    if (NULL == pRoot)
+        return;
+    if (pRoot)
+    {
+        InOrder(pRoot->_pLeft);
+        printf("%c ", pRoot->_data);
+        InOrder(pRoot->_pRight);
+    }
+}
+
+// 后续遍历递归
+void PostOrder(PBTNode pRoot)
+{
+    if (NULL == pRoot)
+        return;
+    if (pRoot)
+    {
+        PostOrder(pRoot->_pLeft);
+        PostOrder(pRoot->_pRight);
+        printf("%c ", pRoot->_data);
+    }
+}
+
+// 层序遍历
+void LevelOrder(PBTNode pRoot)
+{
+    if(NULL == pRoot)
+        return;
+    struct Queue q;
+    QueueInit(&q);
+    QueuePush(&q, pRoot);
+    while (!QueueEmpty(&q))
+    {
+        PBTNode pCur = QueueHead(&q);
+        printf("%c ", pCur->_data);
+        QueuePop(&q);
+
+        if (pCur->_pLeft)
+            QueuePush(&q, pCur->_pLeft);
+        if (pCur->_pRight)
+            QueuePush(&q, pCur->_pRight);
+    }
+    QueueDestroy(&q);
+}
+
+// 拷贝二叉树
+PBTNode CopyBinTree(PBTNode pRoot)
+{
+    PBTNode NewBinTree = NULL;
+    if (pRoot)
+    {
+        NewBinTree = BuyBinTreeNode(pRoot->_data);
+        if (pRoot->_pLeft)
+            NewBinTree->_pLeft = CopyBinTree(pRoot->_pLeft);
+        if (pRoot->_pRight)
+            NewBinTree->_pRight = CopyBinTree(pRoot->_pRight);
+    }
+    return NewBinTree;
+}
+
+void Swap(PBTNode* pL, PBTNode* pR)
+{
+    PBTNode pTemp = NULL;
+    pTemp = (*pL);
+    (*pL) = (*pR);
+    *pR = pTemp;
+}
+
+// 二叉树的镜像递归
+void MirrorBinTree(PBTNode pRoot)
+{
+    if (NULL == pRoot)
+        return;
+    printf("%c ", pRoot->_data);
+    if (pRoot->_pLeft || pRoot->_pRight)
+        Swap(&pRoot->_pLeft, &pRoot->_pRight);
+    MirrorBinTree(pRoot->_pLeft);
+    MirrorBinTree(pRoot->_pRight);
+}
+
+// 二叉树的镜像非递归
+void MirrorBinTreeNor(PBTNode pRoot)
+{
+    struct Queue q;
+    PBTNode pCur = NULL;
+    if (NULL == pRoot)
+        return;
+    QueueInit(&q);
+    QueuePush(&q, pRoot);
+    while (!QueueEmpty(&q))
+    {
+        pCur = QueueHead(&q);
+        if (pCur->_pLeft || pCur->_pRight)
+            Swap(&pCur->_pLeft, &pCur->_pRight);
+        printf("%c ", QueueHead(&q)->_data);
+        QueuePop(&q);
+        if (pCur->_pLeft)
+            QueuePush(&q, pCur->_pLeft);
+        if (pCur->_pRight)
+            QueuePush(&q, pCur->_pRight);
+    }
+    QueueDestroy(&q);
+}
+
+// 求二叉树中结点的个数
+int BinTreeSize(PBTNode pRoot)
+{
+    if (NULL == pRoot)
+        return 0;
+    return 1 + BinTreeSize(pRoot->_pLeft) + BinTreeSize(pRoot->_pRight);
+}
+
+// 获取二叉树中叶子结点的个数
+int GetLeafCount(PBTNode pRoot)
+{
+    int count = 0;
+    if (NULL == pRoot)
+        return 0;
+    if (NULL == pRoot->_pLeft && NULL == pRoot->_pRight)
+        return 1;
+    return GetLeafCount(pRoot->_pLeft) + GetLeafCount(pRoot->_pRight);
+}
+
+// 求二叉树中K层结点的个数
+int GetKLevelNode(PBTNode pRoot, int K)
+{
+    if (NULL == pRoot)
+        return 0;
+    if (1 == K)
+        return 1;
+    return GetKLevelNode(pRoot->_pLeft, K - 1) + GetKLevelNode(pRoot->_pRight, K - 1);
+}
+
+
+// 求二叉树的高度
+int Height(PBTNode pRoot)
+{
+    if (NULL == pRoot)
+        return 0;
+    if (pRoot->_pLeft || pRoot->_pRight)
+        return (1 + Height(pRoot->_pLeft)) > (1 + Height(pRoot->_pRight)) ? (1 + Height(pRoot->_pLeft)) : (1 + Height(pRoot->_pRight));
+    return 1;
+}
+
+
+////////////////////////////////////////////////////////////
+#include"BinTree.h"
+
+void Test()
+{
+    PBTNode pRoot;
+    const char* str = "ABD###CE##F";
+    int len = strlen(str);
+    CreateBinTree(&pRoot, str, len, '#');
+    PreOrder(pRoot);
+    printf("\n");
+    InOrder(pRoot);
+    printf("\n");
+    PostOrder(pRoot);
+    printf("\n");
+    PreOrder(CopyBinTree(pRoot));
+    printf("\n");
+    LevelOrder(pRoot);
+    printf("\n");
+    PreOrderNor(pRoot);
+    printf("\n");
+    MirrorBinTree(pRoot);
+    printf("\n");
+    MirrorBinTreeNor(pRoot);
+    printf("\n");
+    printf("%d\n", BinTreeSize(pRoot));
+    printf("%d\n", GetLeafCount(pRoot));
+    printf("%d\n", GetKLevelNode(pRoot, 2));
+    printf("%d\n", Height(pRoot));
+}
+
+int main()
+{
+    Test();
+    return 0;
+}
+
+/////////////////////////////////////////////////////
+#include"BinTree.h"
+
+extern struct BinTreeNode;
+
+typedef struct BinTreeNode* PBTNode;
+
+typedef PBTNode Datatype;
+
+#define MAX_SIZE 100
+
+typedef struct Stack
+{
+    Datatype _array[MAX_SIZE];
+    int _size;
+}Stack, *PStack;
+
+void StackInit(PStack s);                   //栈的初始化
+void StackPush(PStack s, Datatype data);    //入栈
+void     StackPop(PStack s);                    //出栈
+Datatype StackTop(PStack s);                //查看栈顶数据
+int StackSize(PStack s);                    //查看当前栈里的元素个数
+int StackEmpty(PStack s);                   //检查栈是否为空
+
+//栈的具体实现
+#include"Stack.h"
+
+
+//栈的初始化
+void StackInit(PStack s)
+{
+    assert(s);
+    s->_size = 0;
+}
+
+
+//入栈
+void StackPush(PStack s, Datatype data)
+{
+    assert(s);
+    if (10 == s->_size)             //栈已满
+        return;
+    s->_array[s->_size] = data;
+    s->_size++;
+}
+
+//出栈
+void     StackPop(PStack s)
+{
+    assert(s);
+    if (0 == s->_size)
+        return;
+    s->_size--;
+}
+
+
+//查看栈顶数据
+Datatype StackTop(PStack s)
+{
+    assert(s);
+    if (0 == s->_size)
+    {
+        return NULL;
+    }
+    return s->_array[s->_size - 1];
+}
+
+//查看当前栈里的元素个数
+int StackSize(PStack s)
+{
+    assert(s);
+
+    return s->_size;
+}
+
+//检查栈是否为空
+int StackEmpty(PStack s)
+{
+    if (0 == s->_size)
+        return 1;
+
+    return 0;
+}
+
+////////////////////////////////////////////////////
+#include"BinTree.h"
+
+extern struct BinTreeNode;
+typedef struct BinTreeNode* PBTNode;
+
+typedef PBTNode DataType;
+
+typedef struct ListNode
+{
+    struct ListNode* _pNext;
+    DataType _data;
+}Node, *pNode;
+
+typedef struct Queue
+{
+    pNode _pHead;
+    pNode _pTail;
+}Queue;
+
+//初始化队列
+void QueueInit(Queue* q);
+
+//入列
+void QueuePush(Queue* q, DataType data);
+
+//出列
+void QueuePop(Queue* q);
+
+//查看队头元素
+DataType QueueHead(Queue* q);
+
+//查看队尾元素
+DataType QueueTail(Queue* q);
+
+//判空
+int QueueEmpty(Queue* q);
+
+//销毁
+void QueueDestroy(Queue* q);
+
+//队列的实现
+#include"Queue.h"
+
+pNode BuyNode(DataType data)
+{
+    pNode NewNode = (pNode)malloc(sizeof(Node));
+    if (!NewNode)
+    {
+        printf("申请结点失败\n");
+        return NULL;
+    }
+
+    NewNode->_data = data;
+    NewNode->_pNext = NULL;
+    return NewNode;
+}
+
+void QueueInit(Queue* q)
+{
+
+    assert(q);
+    q->_pTail = q->_pHead = NULL;
+}
+
+//入列
+void QueuePush(Queue* q, DataType data)
+{
+    pNode NewNode = NULL;
+    assert(q);
+    NewNode = BuyNode(data);
+    if (NULL == q->_pHead)
+    {
+        q->_pHead = NewNode;
+        q->_pTail = NewNode;
+    }
+    else
+    {
+        q->_pTail->_pNext = NewNode;
+        q->_pTail = NewNode;
+    }
+}
+
+//出列
+void QueuePop(Queue* q)
+{
+    pNode cur = NULL;
+    assert(q->_pHead);
+
+    if (q->_pHead == NULL)
+    {
+        printf("队列为空\n");
+        return;
+    }
+    cur = q->_pHead;
+    q->_pHead = cur->_pNext;
+    free(cur);
+}
+
+//判空
+int QueueEmpty(Queue* q)
+{
+    assert(q);
+    if (!(q->_pHead))
+        return 1;
+    return 0;
+}
+
+//查看队头元素
+DataType QueueHead(Queue* q)
+{
+    assert(q);
+
+    if (NULL == q->_pHead)
+        return NULL;
+
+    return q->_pHead->_data;
+}
+
+//查看队尾元素
+DataType QueueTail(Queue* q)
+{
+    assert(q);
+
+    if (NULL == q->_pTail)
+        return NULL;
+
+    return q->_pTail->_data;
+}
+
+//销毁
+void QueueDestroy(Queue* q)
+{
+    pNode pPre = NULL;
+    pNode Del = NULL;
+    assert(q);
+    Del = q->_pHead;
+    while (Del)
+    {
+        pPre = Del;
+        Del = Del->_pNext;
+        free(pPre);
+    }
+    q->_pTail = NULL;
+}
