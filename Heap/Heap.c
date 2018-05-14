@@ -148,7 +148,7 @@ void DeleteHeap(Heap* hp)
 	assert(hp);
 	int parent;
 	Swap(&hp->_data[0], &hp->_data[hp->_size - 1]);
-	hp->_size;
+	--hp->_size;
 	parent = hp->_size - 1;
 	for (; parent >= 0; --parent)
 	{
@@ -164,6 +164,17 @@ void DestroyHeap(Heap* hp)
 	hp->_data = NULL;
 	hp->_size = 0;
 	hp->_capacity = 0;
+}
+
+//堆排序
+void HeapSort(Heap* hp)
+{
+	assert(hp);
+	while (!EmptyHeap(hp))
+	{
+		printf("%d ", HeapTop(hp));
+		DeleteHeap(hp);
+	}
 }
 
 void Test()
