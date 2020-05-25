@@ -1,0 +1,4 @@
+﻿  server.cpp
+D:\workplace\Server\Server\server.cpp(48,38): warning C4311: “类型强制转换”: 从“SocketContext *”到“DWORD”的指针截断
+D:\workplace\Server\Server\server.cpp(48,38): warning C4302: “类型强制转换”: 从“SocketContext *”到“DWORD”截断
+  Server.vcxproj -> D:\workplace\Server\x64\Debug\Server.exe
